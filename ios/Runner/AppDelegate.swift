@@ -20,7 +20,7 @@ import Flutter
         result(FlutterMethodNotImplemented)
         return
       }
-      guard let l = call.arguments as? Float else {
+      guard let l = call.arguments as? Double else {
         result(FlutterMethodNotImplemented)
         return
       }
@@ -46,7 +46,7 @@ import Flutter
     }
   }
 
-  private func setDimLevel(_ dimLevel: Float) -> Float {
+  private func setDimLevel(_ dimLevel: Double) -> Double {
     currentDimLevel = CGFloat(dimLevel)
     UIScreen.main.brightness = currentDimLevel!
     return dimLevel
