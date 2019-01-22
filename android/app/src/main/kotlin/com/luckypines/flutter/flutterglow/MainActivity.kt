@@ -1,7 +1,6 @@
 package com.luckypines.flutter.flutterglow
 
 import android.os.Bundle
-import android.util.Log
 
 import io.flutter.app.FlutterActivity
 import io.flutter.plugins.GeneratedPluginRegistrant
@@ -13,14 +12,13 @@ class MainActivity: FlutterActivity() {
     super.onCreate(savedInstanceState)
     GeneratedPluginRegistrant.registerWith(this)
     MethodChannel(flutterView, "flutter.luckypines.com/screen_dimmer").setMethodCallHandler { methodCall, result ->
-      Log.d(">>>> hoge", result.toString());
       if (methodCall.method == "setDimLevel") {
-        val l = methodCall.arguments as? Int
+        val l = methodCall.arguments as? Double
         if (l == null) {
           result.error("InvalidArgument", null, null);
         } else {
           l.let {
-            result.success(setDimLevel(it.toFloat()))
+            result.success(setDimLevel(it))
           }
         }
       } else {
@@ -29,10 +27,10 @@ class MainActivity: FlutterActivity() {
     }
   }
 
-  private fun setDimLevel(dimLevel: Float): Float {
+  private fun setDimLevel(dimLevel: Double): Double {
     val window = getWindow()
     val params = window.getAttributes()
-    params.screenBrightness = dimLevel
+    params.screenBrightness = dimLevel.toFloat()
     window.setAttributes(params)
     window.addFlags(WindowManager.LayoutParams.FLAGS_CHANGED)
     return dimLevel

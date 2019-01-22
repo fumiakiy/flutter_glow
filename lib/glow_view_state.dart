@@ -12,18 +12,17 @@ class GlowViewState extends State<GlowView> {
 
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        methodChannel.invokeMethod("setDimLevel", 0).then((dimValue) {
+    return Container(
+      color: _color,
+      child: Slider(value: _dimLevel, onChanged: (value) {
+        print(">>> ${value}");
+        methodChannel.invokeMethod("setDimLevel", value).then((dimValue) {
           setState(() {
             _color = Colors.red;
             _dimLevel = dimValue;
           });
         });
-      },
-      child: Container(
-        color: _color,
-      ),
+      }),
     );
   }
 }
