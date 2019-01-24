@@ -1,41 +1,51 @@
+import 'package:tuple/tuple.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'glow_view.dart';
+import 'glow_bloc.dart';
 
 class GlowViewState extends State<GlowView> {
-  static const MethodChannel methodChannel = MethodChannel('flutter.luckypines.com/screen_dimmer');
 
-  double _dimLevel;
-  Color _color;
+  final _bloc = GlowBloc();
 
-  GlowViewState(this._dimLevel, this._color);
+  GlowViewState() {
+    _bloc.updateColor(Colors.yellow);
+    _bloc.updateDimLevel(1.0);
+  }
 
   _onRadioChanged(value) {
-    setState(() {
-      _color = value;
-    });
+    _bloc.updateColor(value);
   }
 
   @override
   Widget build(BuildContext context) {
+
+    return StreamBuilder<Tuple2<double, Color>>(
+      stream: _bloc.output.stream,
+      builder: (context, snapshot) {
+        if (snapshot.hasData) {
+          return _buildWidget(snapshot.data.item1, snapshot.data.item2);
+        } else {
+          return CircularProgressIndicator();
+        }
+      },
+    );
+  }
+
+  Widget _buildWidget(double level, Color color) {
     return Container(
-      color: _color,
+      color: color,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: <Widget>[
-          Slider(value: _dimLevel, onChanged: (value) {
-            methodChannel.invokeMethod("setDimLevel", value).then((dimValue) {
-              setState(() {
-                _dimLevel = dimValue;
-              });
-            });
+          Slider(value: level, onChanged: (value) {
+            _bloc.updateDimLevel(value);
           }),
           Row(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
               Radio(
                 value: Colors.yellow,
-                groupValue: _color,
+                groupValue: color,
                 onChanged: _onRadioChanged,
               ),
               Text(
@@ -44,7 +54,7 @@ class GlowViewState extends State<GlowView> {
               ),
               Radio(
                 value: Colors.lightGreen,
-                groupValue: _color,
+                groupValue: color,
                 onChanged: _onRadioChanged,
               ),
               Text(
@@ -55,7 +65,7 @@ class GlowViewState extends State<GlowView> {
               ),
               Radio(
                 value: Colors.purple,
-                groupValue: _color,
+                groupValue: color,
                 onChanged: _onRadioChanged,
               ),
               Text(
@@ -67,5 +77,11 @@ class GlowViewState extends State<GlowView> {
         ],
       )
     );
+  }
+
+  @override
+  void dispose() {
+    _bloc.dispose();
+    super.dispose();
   }
 }
